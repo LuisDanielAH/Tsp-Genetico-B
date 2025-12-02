@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "standalone",  // necesario en Vercel para app router
+  output: "standalone",
+  reactStrictMode: true,
+  trailingSlash: false
 };
 
 export default nextConfig;
