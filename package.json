@@ -5,10 +5,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "build": "NEXT_PRIVATE_USE_TURBOPACK=0 next build",
+    "start": "next start",
     "dev:api": "cd api && python -m uvicorn index:app --reload --port 8000",
     "dev:all": "concurrently \"npm run dev\" \"npm run dev:api\"",
-    "build": "next build",
-    "start": "next start",
     "lint": "eslint .",
     "setup": "pip install -r api/requirements.txt"
   },
