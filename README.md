@@ -1,36 +1,110 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Problema del Viajero - Algoritmo Genético
 
-## Getting Started
+Visualizador interactivo del Problema del Viajero (TSP) usando algoritmos genéticos implementados completamente en frontend con React y TypeScript. No requiere backend externo.
 
-First, run the development server:
+## Características
 
-```bash
+- Algoritmo genético completo implementado en JavaScript (sin dependencias externas)
+- Interfaz de canvas interactiva para añadir ciudades y obstáculos
+- Visualización en tiempo real de la evolución de rutas
+- Sistema de detección de colisiones con obstáculos
+- Parámetros genéticos ajustables
+- Funciona offline y despliega sin problemas en Vercel
+
+## Estructura del Proyecto
+
+\`\`\`
+/
+├── app/                          # Frontend Next.js
+│   ├── page.tsx                 # Página principal
+│   ├── layout.tsx               # Layout base
+│   └── globals.css              # Estilos globales
+├── components/                  # Componentes React
+│   ├── canvas-visualizador.tsx  # Canvas interactivo
+│   ├── panel-control.tsx        # Panel de parámetros
+│   ├── estadisticas-evolucion.tsx # Estadísticas en vivo
+│   └── instrucciones.tsx        # Instrucciones de uso
+├── lib/                         # Lógica compartida
+│   ├── algoritmo-genetico.ts    # Implementación del AG
+│   └── utilidades.ts            # Funciones de geometría
+└── next.config.mjs              # Configuración Next.js
+\`\`\`
+
+## Instalación
+
+\`\`\`bash
+# Instalar dependencias
+npm install
+
+# Ejecutar en desarrollo
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+# La aplicación estará disponible en http://localhost:3000
+\`\`\`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Cómo Usar
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Añadir Ciudades**: Haz clic en el canvas para agregar ciudades (máximo 15)
+2. **Añadir Obstáculos**: Cambia a "Modo Obstáculos" y haz clic para crear barreras circulares
+3. **Eliminar Elementos**: Selecciona un elemento y presiona la tecla Suprimir
+4. **Configurar Parámetros**:
+   - **Tamaño Población**: Cantidad de individuos por generación (10-100)
+   - **Tasa Mutación**: Probabilidad de cambios aleatorios (0.001-0.1)
+   - **Generaciones por Iteración**: Evoluciones por paso (1-50)
+   - **Iteraciones Totales**: Número de pasos principales (1-20)
+5. **Iniciar Evolución**: Presiona el botón para comenzar
 
-## Learn More
+## Algoritmo Genético
 
-To learn more about Next.js, take a look at the following resources:
+### Componentes Principales
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Población Inicial**: Rutas aleatorias entre todas las ciudades
+- **Fitness**: `1 / (distancia_total + penalizaciones)`
+  - Penalización: +1000 por cada cruce de obstáculo
+- **Selección**: Ruleta probabilística basada en fitness
+- **Cruce**: Order Crossover (OX) para mantener validez de rutas
+- **Mutación**: Intercambio aleatorio de ciudades en rutas
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Proceso de Evolución
 
-## Deploy on Vercel
+1. Se genera una población de rutas aleatorias
+2. Se calcula el fitness de cada ruta
+3. Se seleccionan padres usando ruleta probabilística
+4. Se crean hijos combinando material genético (OX)
+5. Se aplican mutaciones aleatorias
+6. Se repite hasta completar generaciones solicitadas
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Despliegue en Vercel
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+La aplicación está lista para desplegar sin configuración adicional:
+
+\`\`\`bash
+npm run build
+vercel deploy
+\`\`\```
+
+No requiere variables de entorno ni backend externo. Todo funciona en el navegador del cliente.
+
+## Rendimiento
+
+- Todos los cálculos se ejecutan localmente en el cliente
+- No hay latencia de red
+- Responsivo incluso con múltiples generaciones
+- Funciona perfectamente sin conexión a internet
+
+## Tecnologías
+
+- **Frontend**: React 19, Next.js 16, TypeScript
+- **Algoritmo**: Implementación pura en JavaScript
+- **Estilos**: Tailwind CSS
+- **Hosting**: Vercel (sin backend requerido)
+
+## Limitaciones
+
+- Máximo 15 ciudades (límite de UI para rendimiento)
+- Obstáculos circulares
+- Cálculos sincronos (sin workers)
+
+## Notas
+
+Este proyecto demuestra la implementación completa de un algoritmo genético para TSP en un entorno frontend moderno, sin dependencias en backends externos.

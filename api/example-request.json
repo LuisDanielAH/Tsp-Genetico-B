@@ -1,0 +1,14 @@
+{
+  "ciudades": [
+    { "x": 50, "y": 50 },
+    { "x": 150, "y": 50 },
+    { "x": 250, "y": 50 },
+    { "x": 150, "y": 150 },
+    { "x": 150, "y": 250 }
+  ],
+  "obstaculos": [{ "x": 150, "y": 150, "radio": 40 }],
+  "tamaño_poblacion": 50,
+  "tasa_mutacion": 0.02,
+  "generaciones": 100,
+  "estado_previo": null
+}

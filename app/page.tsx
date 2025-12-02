@@ -1,103 +1,151 @@
-import Image from "next/image";
+"use client"
 
-export default function Home() {
+import { useState } from "react"
+import CanvasVisualizador from "@/components/canvas-visualizador"
+import PanelControl from "@/components/panel-control"
+import EstadisticasEvolucion from "@/components/estadisticas-evolucion"
+import Instrucciones from "@/components/instrucciones"
+import { evolucionarGeneracion } from "@/lib/algoritmo-genetico"
+
+interface Ciudad {
+  x: number
+  y: number
+  id: number
+}
+
+interface Obstaculo {
+  x: number
+  y: number
+  radio: number
+  id: number
+}
+
+export default function PaginaTSP() {
+  const [ciudades, setCiudades] = useState<Ciudad[]>([])
+  const [obstaculos, setObstaculos] = useState<Obstaculo[]>([])
+  const [rutaMejor, setRutaMejor] = useState<number[]>([])
+  const [evolucionando, setEvolucionando] = useState(false)
+  const [estadisticas, setEstadisticas] = useState<any>(null)
+  const [generacionActual, setGeneracionActual] = useState(0)
+  const [error, setError] = useState<string | null>(null)
+
+  const manejarClickCanvas = (x: number, y: number) => {
+    if (ciudades.length < 15) {
+      setCiudades([...ciudades, { x, y, id: Date.now() }])
+      setError(null)
+    } else {
+      setError("Máximo 15 ciudades permitidas")
+    }
+  }
+
+  const manejarClickObstaculo = (x: number, y: number) => {
+    setObstaculos([...obstaculos, { x, y, radio: 30, id: Date.now() }])
+  }
+
+  const eliminarCiudad = (id: number) => {
+    setCiudades(ciudades.filter((c) => c.id !== id))
+  }
+
+  const eliminarObstaculo = (id: number) => {
+    setObstaculos(obstaculos.filter((o) => o.id !== id))
+  }
+
+  const limpiarMapa = () => {
+    setCiudades([])
+    setObstaculos([])
+    setRutaMejor([])
+    setEstadisticas(null)
+    setGeneracionActual(0)
+    setError(null)
+  }
+
+  const iniciarEvolucion = async (parametros: any) => {
+    if (ciudades.length < 2) {
+      setError("Se necesitan al menos 2 ciudades")
+      return
+    }
+
+    setEvolucionando(true)
+    setError(null)
+    setGeneracionActual(0)
+
+    let rutaActual = rutaMejor.length > 0 ? rutaMejor : undefined
+
+    for (let i = 0; i < parametros.iteraciones; i++) {
+      try {
+        const resultado = evolucionarGeneracion(
+          ciudades,
+          obstaculos,
+          parametros.tamaño_poblacion,
+          parametros.tasa_mutacion,
+          parametros.generacionesPorIteracion,
+          rutaActual,
+        )
+
+        rutaActual = resultado.ruta
+
+        setRutaMejor(resultado.ruta)
+        setEstadisticas({
+          distancia: resultado.distancia,
+          fitness: resultado.fitness,
+          generacion: (i + 1) * parametros.generacionesPorIteracion,
+        })
+
+        setGeneracionActual((i + 1) * parametros.generacionesPorIteracion)
+
+        await new Promise((resolve) => setTimeout(resolve, 100))
+      } catch (error) {
+        console.error("Error durante evolución:", error)
+        setError(`Error: ${error instanceof Error ? error.message : "desconocido"}`)
+        setEvolucionando(false)
+        return
+      }
+    }
+
+    setEvolucionando(false)
+  }
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-white mb-2">Problema del Viajero - Algoritmo Genético</h1>
+          <p className="text-slate-300">
+            Visualizador interactivo que utiliza evolución biológica simulada para encontrar rutas óptimas entre
+            ciudades.
+          </p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {error && <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-red-800">{error}</div>}
+
+        <Instrucciones />
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <CanvasVisualizador
+              ciudades={ciudades}
+              obstaculos={obstaculos}
+              ruta={rutaMejor}
+              onClickCiudad={manejarClickCanvas}
+              onClickObstaculo={manejarClickObstaculo}
+              onEliminarCiudad={eliminarCiudad}
+              onEliminarObstaculo={eliminarObstaculo}
+            />
+          </div>
+
+          <div className="space-y-4">
+            <PanelControl
+              ciudadesCount={ciudades.length}
+              obstaculosCount={obstaculos.length}
+              evolucionando={evolucionando}
+              onIniciarEvolucion={iniciarEvolucion}
+              onLimpiar={limpiarMapa}
+            />
+
+            {estadisticas && <EstadisticasEvolucion estadisticas={estadisticas} generacionActual={generacionActual} />}
+          </div>
+        </div>
+      </div>
     </div>
-  );
+  )
 }
