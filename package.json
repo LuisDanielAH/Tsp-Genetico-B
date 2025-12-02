@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "Visualizador interactivo del Problema del Viajero usando algoritmos genéticos",
   "private": true,
-  "scripts": {
+"scripts": {
     "dev": "next dev",
-    "build": "NEXT_PRIVATE_USE_TURBOPACK=0 next build",
+    "build": "next build",
     "start": "next start",
     "dev:api": "cd api && python -m uvicorn index:app --reload --port 8000",
     "dev:all": "concurrently \"npm run dev\" \"npm run dev:api\"",

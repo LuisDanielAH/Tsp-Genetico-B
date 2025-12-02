@@ -2,7 +2,9 @@
 const nextConfig = {
   output: "standalone",
   reactStrictMode: true,
-  trailingSlash: false,
+  experimental: {
+    appDir: true, // importante si usas App Router
+  },
 };
 
 module.exports = nextConfig;
